@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>MIGRATION ATLAS</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/dark/main.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      background: radial-gradient(ellipse at 30% 20%, #0d1a2d 0%, #0a0a12 35%, #050508 70%, #000000 100%);
+      color:#ffffff;
+      overflow:hidden;
+      font-family:'Michroma',system-ui,sans-serif;
+      text-transform:uppercase;
+    }
+    a{color:#00CCFF;text-decoration:none;transition:color 0.3s}
+    a:hover{color:#fff}
+
+    #viewDiv{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:transparent;
+    }
+    .esri-view .esri-view-surface--inset-outline:focus::after{outline:none!important}
+    .esri-ui{display:none!important}
+
+    /* Glow layer */
+    #glow-layer{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      pointer-events:none;
+      background:radial-gradient(circle at 50% 50%, rgba(255,19,19,0.1) 0%, transparent 50%);
+      mix-blend-mode:screen;
+      z-index:1;
+    }
+
+    /* Header */
+    #header{
+      position:fixed;top:40px;left:40px;
+      text-align:left;z-index:10;
+      pointer-events:none;
+    }
+    #header strong{
+      font-family:'Michroma',sans-serif;
+      font-size:48px;
+      letter-spacing:4px;
+      color:#fff;
+      line-height:1.1;
+      display:block;
+    }
+    #header .subtitle{
+      font-family:'Michroma',sans-serif;
+      font-weight:400;
+      font-size:10px;
+      color:rgba(255,255,255,0.5);
+      margin-top:12px;
+      text-transform:none;
+      letter-spacing:1px;
+    }
+    #header a{pointer-events:auto}
+
+    /* GOD'S EYE HUD PANELS */
+    .hud-panel{
+      position:fixed;
+      font-family:'Michroma',sans-serif;
+      font-size:9px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      pointer-events:auto;
+      z-index:10;
+    }
+    .hud-panel::before{
+      content:'';
+      position:absolute;
+      width:100%;height:100%;
+      border:1px solid rgba(0,204,255,0.3);
+      clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+      pointer-events:none;
+    }
+    .hud-label{
+      color:#00CCFF;opacity:0.6;
+      font-size:8px;margin-bottom:4px;
+      display:flex;align-items:center;gap:4px;
+    }
+    .hud-label::before{content:'[';}
+    .hud-label::after{content:']';}
+    .hud-blink{animation:blink 1s infinite}
+    @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0.3}}
+    .hud-value{color:#fff;font-size:11px;margin:2px 0}
+    .hud-sub{color:#00CCFF;opacity:0.5;font-size:9px}
+    .hud-divider{
+      width:100%;height:1px;
+      background:linear-gradient(90deg,transparent,#00CCFF,transparent);
+      margin:6px 0;opacity:0.3;
+    }
+    #hud-left{
+      top:50%;left:20px;
+      transform:translateY(-50%);
+      padding:12px 16px;
+      text-align:left;
+    }
+    #hud-left .hud-panel-inner{
+      min-width:120px;
+    }
+    .hud-stat{margin:8px 0}
+    .hud-corner{
+      position:absolute;width:6px;height:6px;
+      border-color:#00CCFF;border-style:solid;
+    }
+    .hud-corner.tl{top:-1px;left:-1px;border-width:1px 0 0 1px}
+    .hud-corner.tr{top:-1px;right:-1px;border-width:1px 1px 0 0}
+    .hud-corner.bl{bottom:-1px;left:-1px;border-width:0 0 1px 1px}
+    .hud-corner.br{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+    .scanline{
+      position:absolute;top:0;left:0;right:0;
+      height:2px;background:rgba(0,204,255,0.1);
+      animation:scan 3s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes scan{0%{top:0}100%{top:100%}}
+
+    /* DATA PANEL - Right side */
+    #data-panel{
+      position:fixed;top:50%;right:20px;
+      transform:translateY(-50%);
+      width:240px;padding:12px 14px;
+      font-family:'Michroma',sans-serif;
+      font-size:8px;text-transform:uppercase;
+      letter-spacing:0.3px;
+      border:1px solid rgba(0,204,255,0.25);
+      background:rgba(0,0,0,0.85);
+      z-index:10;
+    }
+    #data-panel::before{
+      content:'';position:absolute;top:0;right:0;
+      width:12px;height:12px;
+      border-top:1px solid #00CCFF;
+      border-right:1px solid #00CCFF;
+    }
+    #data-panel::after{
+      content:'';position:absolute;bottom:0;left:0;
+      width:12px;height:12px;
+      border-bottom:1px solid #00CCFF;
+      border-left:1px solid #00CCFF;
+    }
+    .data-section{margin-bottom:12px}
+    .data-title{
+      color:#00CCFF;font-size:8px;opacity:0.6;
+      margin-bottom:6px;letter-spacing:1px;
+    }
+    .data-title::before{content:'[ ';}
+    .data-title::after{content:' ]';}
+
+    /* Search Input */
+    .search-container{position:relative}
+    .hud-search{
+      width:100%;padding:6px 8px;
+      background:#0a1a20;color:#00CCFF;
+      border:1px solid rgba(0,204,255,0.3);
+      font-family:'Michroma',sans-serif;
+      font-size:8px;text-transform:uppercase;
+      outline:none;
+    }
+    .hud-search:focus{border-color:#00CCFF}
+    .hud-search::placeholder{color:rgba(0,204,255,0.4)}
+    .search-dropdown{
+      display:none;
+      position:absolute;
+      top:100%;left:0;right:0;
+      max-height:150px;
+      overflow-y:auto;
+      background:#0a1a20;
+      border:1px solid rgba(0,204,255,0.3);
+      border-top:none;
+      z-index:100;
+    }
+    .search-dropdown.active{display:block}
+    .search-item{
+      padding:6px 8px;
+      font-size:8px;
+      color:#00CCFF;
+      cursor:pointer;
+      text-transform:uppercase;
+    }
+    .search-item:hover,.search-item.selected{
+      background:rgba(0,204,255,0.15);
+      color:#fff;
+    }
+
+    /* Bar Chart */
+    .bar-chart{margin-top:8px}
+    .bar-row{
+      display:flex;align-items:center;
+      margin:6px 0;font-size:9px;
+      padding:6px 8px;
+      background:rgba(0,0,0,0.3);
+      border-left:2px solid transparent;
+      transition:all 0.4s ease;
+      cursor:pointer;
+      position:relative;
+    }
+    .bar-row:hover{
+      background:rgba(0,204,255,0.08);
+      border-left-color:#00CCFF;
+    }
+    .bar-row:hover .bar-fill{filter:brightness(1.3)}
+    .bar-rank{
+      width:18px;color:rgba(255,255,255,0.25);
+      font-size:10px;font-weight:bold;
+    }
+    .bar-label{
+      width:65px;color:#fff;opacity:0.9;
+      white-space:nowrap;overflow:hidden;
+      font-weight:500;letter-spacing:0.3px;
+      font-size:8px;
+    }
+    .bar-track{
+      flex:1;height:6px;
+      background:rgba(255,255,255,0.1);
+      margin:0 10px;position:relative;
+      border-radius:3px;
+      overflow:hidden;
+    }
+    .bar-fill{
+      height:100%;position:absolute;left:0;top:0;
+      transition:width 0.5s ease;
+      border-radius:3px;
+    }
+    .bar-fill.outflow{background:#FF4444}
+    .bar-fill.inflow{background:#00E5FF}
+    .bar-value{
+      width:40px;text-align:right;
+      font-family:'Michroma',sans-serif;
+      font-size:11px;letter-spacing:0.5px;
+      color:#fff;
+    }
+    .bar-row.outflow-row .bar-value{color:#FF6666}
+    .bar-row.inflow-row .bar-value{color:#00E5FF}
+
+    /* KPI Cards */
+    .kpi-grid{display:flex;gap:8px;margin-bottom:10px}
+    .kpi-card{
+      flex:1;padding:6px;
+      background:rgba(0,204,255,0.05);
+      border:1px solid rgba(0,204,255,0.15);
+      text-align:center;
+    }
+    .kpi-num{color:#FF1313;font-size:14px;font-weight:bold}
+    .kpi-num.cyan{color:#00E5FF}
+    .kpi-label{color:#00CCFF;font-size:7px;opacity:0.6;margin-top:2px}
+
+    /* Tooltip */
+    #tooltip{
+      display:none;visibility:hidden;opacity:0;
+      position:fixed;
+      padding:10px 14px;
+      background:rgba(0,0,0,0.95);
+      border:1px solid rgba(0,204,255,0.4);
+      border-radius:4px;
+      font-size:12px;line-height:18px;
+      white-space:nowrap;
+      z-index:100;
+      text-transform:uppercase;
+      backdrop-filter:blur(4px);
+      -webkit-backdrop-filter:blur(4px);
+      transition:opacity 0.3s;
+      pointer-events:none;
+    }
+    #tooltip .tt-name{color:#00CCFF;font-weight:500;font-size:11px}
+    #tooltip .tt-type{color:rgba(255,255,255,0.5);font-size:8px;margin-top:2px}
+    #tooltip .tt-flow{color:#fff;font-size:10px;margin-top:4px}
+    #tooltip.visible{display:block;visibility:visible;opacity:1}
+
+    /* Loading screen */
+    #loading{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:radial-gradient(ellipse at 30% 20%, #0d1a2d 0%, #0a0a12 35%, #050508 70%, #000000 100%);
+      display:flex;align-items:center;justify-content:center;
+      z-index:1000;
+      transition:opacity 1s ease;
+    }
+    #loading .loader-text{
+      font-family:'Michroma',sans-serif;
+      font-size:14px;color:#00CCFF;
+      letter-spacing:4px;
+      animation:blink 1s infinite;
+    }
+    #loading.fade-out{opacity:0;pointer-events:none}
+
+    /* Crisis info panel */
+    #panel-crisis-info{display:none}
+    #panel-crisis-info .crisis-text{
+      font-size:9px;color:rgba(255,255,255,0.6);
+      line-height:1.5;text-transform:none;
+    }
+
+    /* Mini trend chart */
+    #panel-trend{display:none}
+    .trend-mini{display:flex;align-items:flex-end;gap:3px;height:50px}
+    .trend-mini-bar{
+      flex:1;background:linear-gradient(180deg,#ff3333,#ff6666);
+      border-radius:2px 2px 0 0;
+      transition:height 0.5s ease;
+      min-width:4px;
+    }
+    .trend-mini-label{
+      font-size:6px;color:rgba(255,255,255,0.3);
+      text-align:center;margin-top:2px;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      #header{top:16px;left:16px}
+      #header strong{font-size:18px;letter-spacing:1px}
+      #header .subtitle{font-size:7px;margin-top:6px}
+      #hud-left{display:none}
+      #data-panel{
+        top:auto;bottom:20px;right:12px;
+        transform:none;width:150px;
+        max-height:65vh;overflow-y:auto;
+        padding:8px;border-radius:8px;
+        background:rgba(0,0,0,0.9);
+        backdrop-filter:blur(10px);
+      }
+      #data-panel::before,#data-panel::after{display:none}
+      .kpi-grid{flex-direction:column;gap:6px}
+      .kpi-num{font-size:12px}
+      .kpi-label{font-size:6px}
+      .bar-row{padding:4px 6px;margin:4px 0}
+      .bar-rank{font-size:8px;width:14px}
+      .bar-label{font-size:6px;width:40px}
+      .bar-value{font-size:8px;width:28px}
+      .bar-track{height:4px;margin:0 4px}
+      .data-title{font-size:7px}
+    }
+    @media (max-width: 480px) {
+      #header strong{font-size:16px}
+      #data-panel{width:130px;padding:6px;right:8px;bottom:16px;max-height:60vh}
+      .kpi-num{font-size:11px}
+      .bar-label{width:32px;font-size:5px}
+      .bar-value{font-size:7px;width:24px}
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loader-text">INITIALIZING MIGRATION ATLAS...</div>
+</div>
+
+<div id="viewDiv"></div>
+<div id="glow-layer"></div>
+
+<!-- Header -->
+<div id="header">
+  <div><strong>MIGRATION<br>ATLAS</strong></div>
+  <div class="subtitle">Global refugee and displacement flows. Data: UNHCR 2020-2025</div>
+  <a href="https://www.linkedin.com/in/seoyeonjun/" target="_blank" style="font-size:9px;color:#00CCFF;opacity:0.7;margin-top:8px;display:inline-block">by Seoyeon Jun</a>
+</div>
+
+<!-- Left HUD Panel -->
+<div id="hud-left" class="hud-panel">
+  <div class="scanline"></div>
+  <div class="hud-corner tl"></div>
+  <div class="hud-corner bl"></div>
+  <div class="hud-panel-inner">
+    <div class="hud-label">SYS<span class="hud-blink">_</span>INTEL</div>
+    <div class="hud-divider"></div>
+    <div class="hud-stat">
+      <div class="hud-sub">DISPLACED</div>
+      <div class="hud-value">117.3M</div>
+    </div>
+    <div class="hud-stat">
+      <div class="hud-sub">REFUGEES</div>
+      <div class="hud-value">43.4M</div>
+    </div>
+    <div class="hud-stat">
+      <div class="hud-sub">ASYLUM</div>
+      <div class="hud-value">6.9M</div>
+    </div>
+  </div>
+</div>
+
+<!-- Data Panel - Right Side -->
+<div id="data-panel">
+  <div class="scanline"></div>
+
+  <!-- Country header (shown when selected) -->
+  <div id="panel-country-header" style="display:none;margin-bottom:12px">
+    <div id="panel-country-name" style="font-family:'Michroma',sans-serif;font-size:20px;color:#fff;letter-spacing:2px"></div>
+    <div id="panel-country-status" style="display:inline-block;padding:2px 8px;background:#ff3333;color:#fff;font-size:8px;margin-top:4px"></div>
+  </div>
+
+  <!-- KPI Summary -->
+  <div class="data-section">
+    <div class="data-title" id="kpi-title">GLOBAL KPI</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-num" id="kpi-outflow">7.6M</div>
+        <div class="kpi-label" id="kpi-outflow-label">OUTFLOW</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-num cyan" id="kpi-inflow">5.2M</div>
+        <div class="kpi-label" id="kpi-inflow-label">INFLOW</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Country Filter -->
+  <div class="data-section">
+    <div class="data-title">COUNTRY FILTER</div>
+    <div class="search-container">
+      <input type="text" class="hud-search" id="countrySearch" placeholder="Search country..." autocomplete="off">
+      <div class="search-dropdown" id="searchDropdown"></div>
+    </div>
+  </div>
+
+  <!-- Crisis Info (shown when country selected) -->
+  <div id="panel-crisis-info" class="data-section">
+    <div class="data-title">// CRISIS</div>
+    <div id="panel-crisis-text" class="crisis-text"></div>
+  </div>
+
+  <!-- Mini Trend Chart -->
+  <div id="panel-trend" class="data-section">
+    <div class="data-title">// TREND 2015-2024</div>
+    <div id="panel-trend-chart" class="trend-mini"></div>
+  </div>
+
+  <!-- Outflow Chart -->
+  <div class="data-section">
+    <div class="data-title">OUTFLOW (EMIGRATION)</div>
+    <div class="bar-chart" id="outflowChart">
+      <div class="bar-row outflow-row" onclick="filterCountry('syria')">
+        <div class="bar-rank">01</div>
+        <div class="bar-label">SYRIA</div>
+        <div class="bar-track"><div class="bar-fill outflow" style="width:95%"></div></div>
+        <div class="bar-value">6.8M</div>
+      </div>
+      <div class="bar-row outflow-row" onclick="filterCountry('ukraine')">
+        <div class="bar-rank">02</div>
+        <div class="bar-label">UKRAINE</div>
+        <div class="bar-track"><div class="bar-fill outflow" style="width:88%"></div></div>
+        <div class="bar-value">6.3M</div>
+      </div>
+      <div class="bar-row outflow-row" onclick="filterCountry('afghanistan')">
+        <div class="bar-rank">03</div>
+        <div class="bar-label">AFGHAN</div>
+        <div class="bar-track"><div class="bar-fill outflow" style="width:79%"></div></div>
+        <div class="bar-value">5.7M</div>
+      </div>
+      <div class="bar-row outflow-row" onclick="filterCountry('venezuela')">
+        <div class="bar-rank">04</div>
+        <div class="bar-label">VENEZUELA</div>
+        <div class="bar-track"><div class="bar-fill outflow" style="width:69%"></div></div>
+        <div class="bar-value">5.0M</div>
+      </div>
+      <div class="bar-row outflow-row" onclick="filterCountry('sudan')">
+        <div class="bar-rank">05</div>
+        <div class="bar-label">SUDAN</div>
+        <div class="bar-track"><div class="bar-fill outflow" style="width:39%"></div></div>
+        <div class="bar-value">2.8M</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inflow Chart -->
+  <div class="data-section" id="inflow-section">
+    <div class="data-title" id="inflow-title">INFLOW (IMMIGRATION)</div>
+    <div class="bar-chart" id="inflowChart">
+      <div class="bar-row inflow-row">
+        <div class="bar-rank">01</div>
+        <div class="bar-label">TURKEY</div>
+        <div class="bar-track"><div class="bar-fill inflow" style="width:90%"></div></div>
+        <div class="bar-value">3.6M</div>
+      </div>
+      <div class="bar-row inflow-row">
+        <div class="bar-rank">02</div>
+        <div class="bar-label">GERMANY</div>
+        <div class="bar-track"><div class="bar-fill inflow" style="width:63%"></div></div>
+        <div class="bar-value">2.5M</div>
+      </div>
+      <div class="bar-row inflow-row">
+        <div class="bar-rank">03</div>
+        <div class="bar-label">POLAND</div>
+        <div class="bar-track"><div class="bar-fill inflow" style="width:48%"></div></div>
+        <div class="bar-value">1.9M</div>
+      </div>
+      <div class="bar-row inflow-row">
+        <div class="bar-rank">04</div>
+        <div class="bar-label">COLOMBIA</div>
+        <div class="bar-track"><div class="bar-fill inflow" style="width:45%"></div></div>
+        <div class="bar-value">1.8M</div>
+      </div>
+      <div class="bar-row inflow-row">
+        <div class="bar-rank">05</div>
+        <div class="bar-label">PAKISTAN</div>
+        <div class="bar-track"><div class="bar-fill inflow" style="width:40%"></div></div>
+        <div class="bar-value">1.6M</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Source -->
+  <div style="font-size:7px;color:#00CCFF;opacity:0.4;text-align:right;margin-top:8px">
+    SOURCE: UNHCR MID-2024
+  </div>
+</div>
+
+<!-- Tooltip -->
+<div id="tooltip">
+  <div class="tt-name"></div>
+  <div class="tt-type"></div>
+  <div class="tt-flow"></div>
+</div>
+
+<script src="https://js.arcgis.com/4.31/"></script>
+<script>
+require([
+  "esri/Map",
+  "esri/views/SceneView",
+  "esri/layers/GraphicsLayer",
+  "esri/Graphic",
+  "esri/geometry/Point",
+  "esri/geometry/Polyline",
+  "esri/symbols/SimpleMarkerSymbol",
+  "esri/symbols/SimpleLineSymbol",
+  "esri/Color",
+  "esri/geometry/SpatialReference"
+], function(Map, SceneView, GraphicsLayer, Graphic, Point, Polyline, SimpleMarkerSymbol, SimpleLineSymbol, Color, SpatialReference) {
+
+  // ============== DATA ==============
+  var COUNTRY_COORDS = {
+    AFG:{lat:34.5,lng:69.2,name:'Afghanistan'},SYR:{lat:35.0,lng:38.0,name:'Syria'},
+    UKR:{lat:50.4,lng:30.5,name:'Ukraine'},VEN:{lat:10.5,lng:-66.9,name:'Venezuela'},
+    SDN:{lat:15.5,lng:32.5,name:'Sudan'},MMR:{lat:16.0,lng:96.0,name:'Myanmar'},
+    BFA:{lat:12.0,lng:-1.5,name:'Burkina Faso'},COD:{lat:-4.3,lng:15.3,name:'DR Congo'},
+    SSD:{lat:4.9,lng:31.6,name:'South Sudan'},SOM:{lat:2.0,lng:45.3,name:'Somalia'},
+    ERI:{lat:15.3,lng:38.9,name:'Eritrea'},CAF:{lat:6.6,lng:20.9,name:'Central African Rep'},
+    YEM:{lat:15.5,lng:48.5,name:'Yemen'},MLI:{lat:17.6,lng:-4.0,name:'Mali'},
+    NGA:{lat:9.1,lng:7.5,name:'Nigeria'},IRQ:{lat:33.3,lng:44.4,name:'Iraq'},
+    PAK:{lat:33.7,lng:73.1,name:'Pakistan'},IRN:{lat:35.7,lng:51.4,name:'Iran'},
+    DEU:{lat:52.5,lng:13.4,name:'Germany'},FRA:{lat:48.9,lng:2.4,name:'France'},
+    GBR:{lat:51.5,lng:-0.1,name:'UK'},ITA:{lat:41.9,lng:12.5,name:'Italy'},
+    ESP:{lat:40.4,lng:-3.7,name:'Spain'},POL:{lat:52.2,lng:21.0,name:'Poland'},
+    SWE:{lat:59.3,lng:18.1,name:'Sweden'},NLD:{lat:52.4,lng:4.9,name:'Netherlands'},
+    AUT:{lat:48.2,lng:16.4,name:'Austria'},TUR:{lat:41.0,lng:29.0,name:'Turkey'},
+    LBN:{lat:33.9,lng:35.5,name:'Lebanon'},JOR:{lat:31.9,lng:35.9,name:'Jordan'},
+    USA:{lat:40.7,lng:-74.0,name:'USA'},CAN:{lat:43.7,lng:-79.4,name:'Canada'},
+    COL:{lat:4.6,lng:-74.1,name:'Colombia'},BRA:{lat:-23.6,lng:-46.6,name:'Brazil'},
+    AUS:{lat:-33.9,lng:151.2,name:'Australia'},UGA:{lat:0.3,lng:32.6,name:'Uganda'},
+    KEN:{lat:-1.3,lng:36.8,name:'Kenya'},ETH:{lat:9.0,lng:38.7,name:'Ethiopia'},
+    EGY:{lat:30.0,lng:31.2,name:'Egypt'},ZAF:{lat:-25.7,lng:28.2,name:'South Africa'},
+    RWA:{lat:-1.9,lng:29.9,name:'Rwanda'},TZA:{lat:-6.2,lng:35.7,name:'Tanzania'},
+    CHE:{lat:46.9,lng:7.4,name:'Switzerland'},BEL:{lat:50.8,lng:4.4,name:'Belgium'},
+    GRC:{lat:37.98,lng:23.7,name:'Greece'},RUS:{lat:55.75,lng:37.6,name:'Russia'},
+    MEX:{lat:19.4,lng:-99.1,name:'Mexico'},CHL:{lat:-33.4,lng:-70.6,name:'Chile'},
+    PER:{lat:-12.0,lng:-77.0,name:'Peru'},ARG:{lat:-34.6,lng:-58.4,name:'Argentina'},
+    TCD:{lat:12.1,lng:15.0,name:'Chad'},CMR:{lat:3.9,lng:11.5,name:'Cameroon'},
+    NER:{lat:13.5,lng:2.1,name:'Niger'},MRT:{lat:18.1,lng:-15.9,name:'Mauritania'},
+    BGD:{lat:23.8,lng:90.4,name:'Bangladesh'},MYS:{lat:3.1,lng:101.7,name:'Malaysia'},
+    THA:{lat:13.75,lng:100.5,name:'Thailand'},IND:{lat:20.6,lng:78.96,name:'India'},
+    CHN:{lat:39.9,lng:116.4,name:'China'},JPN:{lat:35.7,lng:139.7,name:'Japan'},
+    KOR:{lat:37.6,lng:127.0,name:'South Korea'},IDN:{lat:-6.2,lng:106.8,name:'Indonesia'},
+    NOR:{lat:59.9,lng:10.75,name:'Norway'},DNK:{lat:55.7,lng:12.6,name:'Denmark'},
+    FIN:{lat:60.2,lng:24.9,name:'Finland'},HUN:{lat:47.5,lng:19.0,name:'Hungary'},
+    CZE:{lat:50.1,lng:14.4,name:'Czechia'},ROU:{lat:44.4,lng:26.1,name:'Romania'},
+    BGR:{lat:42.7,lng:23.3,name:'Bulgaria'},SRB:{lat:44.8,lng:20.5,name:'Serbia'},
+    HRV:{lat:45.8,lng:16.0,name:'Croatia'},SVN:{lat:46.1,lng:14.5,name:'Slovenia'},
+    SVK:{lat:48.1,lng:17.1,name:'Slovakia'},PRT:{lat:38.7,lng:-9.1,name:'Portugal'},
+    IRL:{lat:53.3,lng:-6.26,name:'Ireland'},ISR:{lat:32.1,lng:34.8,name:'Israel'},
+    SAU:{lat:24.7,lng:46.7,name:'Saudi Arabia'},ARE:{lat:24.5,lng:54.4,name:'UAE'},
+    KWT:{lat:29.4,lng:47.98,name:'Kuwait'},QAT:{lat:25.3,lng:51.5,name:'Qatar'},
+    NZL:{lat:-41.3,lng:174.8,name:'New Zealand'},LBY:{lat:26.3,lng:17.2,name:'Libya'},
+    DZA:{lat:36.8,lng:3.0,name:'Algeria'},MAR:{lat:34.0,lng:-6.8,name:'Morocco'},
+    TUN:{lat:36.8,lng:10.2,name:'Tunisia'},AGO:{lat:-8.8,lng:13.2,name:'Angola'},
+    MOZ:{lat:-25.9,lng:32.6,name:'Mozambique'},ZMB:{lat:-15.4,lng:28.3,name:'Zambia'},
+    ZWE:{lat:-17.8,lng:31.0,name:'Zimbabwe'},MWI:{lat:-13.98,lng:33.8,name:'Malawi'},
+    COG:{lat:-4.3,lng:15.3,name:'Congo'},SEN:{lat:14.7,lng:-17.5,name:'Senegal'},
+    GHA:{lat:5.6,lng:-0.2,name:'Ghana'},CIV:{lat:6.8,lng:-5.3,name:'Ivory Coast'},
+    GIN:{lat:9.6,lng:-13.6,name:'Guinea'},LBR:{lat:6.3,lng:-10.8,name:'Liberia'},
+    SLE:{lat:8.5,lng:-13.2,name:'Sierra Leone'},BEN:{lat:6.4,lng:2.5,name:'Benin'},
+    TGO:{lat:6.1,lng:1.2,name:'Togo'},GMB:{lat:13.5,lng:-16.6,name:'Gambia'},
+    GNB:{lat:11.9,lng:-15.6,name:'Guinea-Bissau'},LKA:{lat:6.93,lng:79.8,name:'Sri Lanka'},
+    NPL:{lat:27.7,lng:85.3,name:'Nepal'},BTN:{lat:27.5,lng:89.6,name:'Bhutan'},
+    PRK:{lat:39.0,lng:125.8,name:'North Korea'},LAO:{lat:18.0,lng:102.6,name:'Laos'},
+    KHM:{lat:11.6,lng:104.9,name:'Cambodia'},VNM:{lat:21.0,lng:105.9,name:'Vietnam'},
+    PHL:{lat:14.6,lng:121.0,name:'Philippines'},PNG:{lat:-6.3,lng:143.96,name:'Papua New Guinea'},
+    CRI:{lat:9.93,lng:-84.1,name:'Costa Rica'},GTM:{lat:14.6,lng:-90.5,name:'Guatemala'},
+    HND:{lat:14.1,lng:-87.2,name:'Honduras'},SLV:{lat:13.7,lng:-89.2,name:'El Salvador'},
+    NIC:{lat:12.1,lng:-86.3,name:'Nicaragua'},PAN:{lat:9.0,lng:-79.5,name:'Panama'},
+    ECU:{lat:-0.2,lng:-78.5,name:'Ecuador'},BOL:{lat:-16.5,lng:-68.2,name:'Bolivia'},
+    PRY:{lat:-25.3,lng:-57.6,name:'Paraguay'},URY:{lat:-34.9,lng:-56.2,name:'Uruguay'},
+    CUB:{lat:23.0,lng:-82.4,name:'Cuba'},HTI:{lat:18.5,lng:-72.3,name:'Haiti'},
+    DOM:{lat:18.5,lng:-69.9,name:'Dominican Rep'},JAM:{lat:18.0,lng:-76.8,name:'Jamaica'},
+    TTO:{lat:10.65,lng:-61.5,name:'Trinidad'},BLZ:{lat:17.25,lng:-88.8,name:'Belize'},
+    GEO:{lat:41.7,lng:44.8,name:'Georgia'},ARM:{lat:40.2,lng:44.5,name:'Armenia'},
+    AZE:{lat:40.4,lng:49.9,name:'Azerbaijan'},KAZ:{lat:51.2,lng:71.45,name:'Kazakhstan'},
+    UZB:{lat:41.3,lng:69.3,name:'Uzbekistan'},TJK:{lat:38.6,lng:68.8,name:'Tajikistan'},
+    KGZ:{lat:42.9,lng:74.6,name:'Kyrgyzstan'},TKM:{lat:37.95,lng:58.4,name:'Turkmenistan'},
+    MNG:{lat:47.9,lng:106.9,name:'Mongolia'},BIH:{lat:43.9,lng:18.4,name:'Bosnia'},
+    MKD:{lat:42.0,lng:21.4,name:'North Macedonia'},ALB:{lat:41.3,lng:19.8,name:'Albania'},
+    MNE:{lat:42.4,lng:19.3,name:'Montenegro'},BLR:{lat:53.9,lng:27.6,name:'Belarus'},
+    MDA:{lat:47.0,lng:28.9,name:'Moldova'},LTU:{lat:54.7,lng:25.3,name:'Lithuania'},
+    LVA:{lat:56.95,lng:24.1,name:'Latvia'},EST:{lat:59.4,lng:24.7,name:'Estonia'},
+    CYP:{lat:35.2,lng:33.4,name:'Cyprus'},MLT:{lat:35.9,lng:14.5,name:'Malta'},
+    ISL:{lat:64.1,lng:-21.9,name:'Iceland'},LUX:{lat:49.6,lng:6.1,name:'Luxembourg'},
+    DJI:{lat:11.6,lng:43.1,name:'Djibouti'},PSE:{lat:31.9,lng:35.2,name:'Palestine'},
+    NAM:{lat:-22.6,lng:17.1,name:'Namibia'},BWA:{lat:-24.65,lng:25.9,name:'Botswana'},
+    SWZ:{lat:-26.3,lng:31.1,name:'Eswatini'},LSO:{lat:-29.3,lng:28.5,name:'Lesotho'},
+    GAB:{lat:0.4,lng:9.45,name:'Gabon'},GNQ:{lat:1.65,lng:10.3,name:'Eq Guinea'},
+    BDI:{lat:-3.4,lng:29.4,name:'Burundi'},OMN:{lat:21.5,lng:55.9,name:'Oman'},
+    BHR:{lat:26.0,lng:50.6,name:'Bahrain'},HKG:{lat:22.3,lng:114.2,name:'Hong Kong'}
+  };
+
+  // Country crisis data
+  var COUNTRY_DATA = {
+    syria: {
+      name: 'SYRIA', iso: 'SYR', type: 'outflow',
+      total: '6.8M', refugees: '5.4M', internal: '6.9M', year: '2011',
+      event: 'The Syrian Civil War began in 2011 as part of the Arab Spring protests. What started as peaceful demonstrations against President Assad escalated into a multi-sided armed conflict involving government forces, rebel groups, and ISIS. Over 500,000 people have died, and more than half the population has been displaced.',
+      trend: [4.2, 4.8, 5.5, 6.1, 6.3, 6.5, 6.6, 6.7, 6.8, 6.8],
+      destinations: ['Turkey 3.6M', 'Lebanon 0.8M', 'Jordan 0.7M', 'Germany 0.8M', 'Iraq 0.3M']
+    },
+    ukraine: {
+      name: 'UKRAINE', iso: 'UKR', type: 'outflow',
+      total: '6.3M', refugees: '6.3M', internal: '3.7M', year: '2022',
+      event: 'Russia launched a full-scale invasion of Ukraine on February 24, 2022. This triggered the largest refugee crisis in Europe since World War II. Within months, millions fled to neighboring countries, with Poland receiving the largest number of refugees.',
+      trend: [0, 0, 0, 0, 0, 0, 0, 0.1, 6.3, 6.3],
+      destinations: ['Poland 1.6M', 'Germany 1.1M', 'Czechia 0.5M', 'UK 0.2M', 'Spain 0.2M']
+    },
+    afghanistan: {
+      name: 'AFGHANISTAN', iso: 'AFG', type: 'outflow',
+      total: '5.7M', refugees: '5.7M', internal: '3.2M', year: '1979',
+      event: 'Decades of conflict since the Soviet invasion in 1979, followed by civil war, Taliban rule, US intervention, and the Taliban takeover in August 2021 have created waves of displacement. The 2021 collapse led to a massive new exodus.',
+      trend: [2.6, 2.5, 2.5, 2.6, 2.7, 2.8, 2.6, 2.6, 5.7, 5.7],
+      destinations: ['Iran 3.4M', 'Pakistan 1.7M', 'Germany 0.2M', 'Turkey 0.1M', 'Austria 0.04M']
+    },
+    venezuela: {
+      name: 'VENEZUELA', iso: 'VEN', type: 'outflow',
+      total: '5.0M', refugees: '5.0M', internal: '0.1M', year: '2014',
+      event: 'Economic collapse, hyperinflation, political crisis under the Maduro government, and severe shortages of food and medicine have driven millions to flee. Unlike war refugees, most Venezuelans are economic migrants seeking survival.',
+      trend: [0.1, 0.2, 0.5, 1.5, 3.4, 4.5, 4.6, 4.8, 5.0, 5.0],
+      destinations: ['Colombia 1.8M', 'Peru 0.5M', 'USA 0.5M', 'Ecuador 0.4M', 'Chile 0.4M']
+    },
+    sudan: {
+      name: 'SUDAN', iso: 'SDN', type: 'outflow',
+      total: '2.8M', refugees: '1.1M', internal: '7.1M', year: '2023',
+      event: 'Armed conflict erupted in April 2023 between the Sudanese Armed Forces and the Rapid Support Forces paramilitary group. The fighting has caused massive displacement, with millions fleeing to Chad, Egypt, and South Sudan.',
+      trend: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 1.1, 2.8],
+      destinations: ['Chad 0.6M', 'Egypt 0.5M', 'South Sudan 0.3M', 'Ethiopia 0.1M', 'CAR 0.05M']
+    },
+    myanmar: {
+      name: 'MYANMAR', iso: 'MMR', type: 'outflow',
+      total: '1.3M', refugees: '1.3M', internal: '1.9M', year: '2017',
+      event: 'Military operations against the Rohingya population in 2017 led to mass exodus to Bangladesh. The 2021 military coup intensified displacement, with ongoing civil conflict creating new waves of refugees.',
+      trend: [0.5, 0.5, 0.5, 1.1, 1.1, 1.1, 1.2, 1.2, 1.3, 1.3],
+      destinations: ['Bangladesh 0.9M', 'Thailand 0.1M', 'Malaysia 0.1M', 'India 0.04M', 'China 0.02M']
+    }
+  };
+
+  // Migration flow data - major routes with volumes
+  var FLOWS = [
+    // Syria outflows
+    {origin:'SYR', dest:'TUR', volume:3600000, label:'3.6M'},
+    {origin:'SYR', dest:'DEU', volume:800000, label:'0.8M'},
+    {origin:'SYR', dest:'LBN', volume:800000, label:'0.8M'},
+    {origin:'SYR', dest:'JOR', volume:700000, label:'0.7M'},
+    {origin:'SYR', dest:'IRQ', volume:300000, label:'0.3M'},
+    // Ukraine outflows
+    {origin:'UKR', dest:'POL', volume:1600000, label:'1.6M'},
+    {origin:'UKR', dest:'DEU', volume:1100000, label:'1.1M'},
+    {origin:'UKR', dest:'CZE', volume:500000, label:'0.5M'},
+    {origin:'UKR', dest:'GBR', volume:200000, label:'0.2M'},
+    {origin:'UKR', dest:'ESP', volume:200000, label:'0.2M'},
+    // Afghanistan outflows
+    {origin:'AFG', dest:'IRN', volume:3400000, label:'3.4M'},
+    {origin:'AFG', dest:'PAK', volume:1700000, label:'1.7M'},
+    {origin:'AFG', dest:'DEU', volume:200000, label:'0.2M'},
+    {origin:'AFG', dest:'TUR', volume:100000, label:'0.1M'},
+    // Venezuela outflows
+    {origin:'VEN', dest:'COL', volume:1800000, label:'1.8M'},
+    {origin:'VEN', dest:'PER', volume:500000, label:'0.5M'},
+    {origin:'VEN', dest:'USA', volume:500000, label:'0.5M'},
+    {origin:'VEN', dest:'ECU', volume:400000, label:'0.4M'},
+    {origin:'VEN', dest:'CHL', volume:400000, label:'0.4M'},
+    // Sudan outflows
+    {origin:'SDN', dest:'TCD', volume:600000, label:'0.6M'},
+    {origin:'SDN', dest:'EGY', volume:500000, label:'0.5M'},
+    {origin:'SDN', dest:'SSD', volume:300000, label:'0.3M'},
+    {origin:'SDN', dest:'ETH', volume:100000, label:'0.1M'},
+    // Myanmar outflows
+    {origin:'MMR', dest:'BGD', volume:900000, label:'0.9M'},
+    {origin:'MMR', dest:'THA', volume:100000, label:'0.1M'},
+    {origin:'MMR', dest:'MYS', volume:100000, label:'0.1M'}
+  ];
+
+  // Build lookup maps
+  var flowsByOrigin = {};
+  var flowsByDest = {};
+  FLOWS.forEach(function(f) {
+    if (!flowsByOrigin[f.origin]) flowsByOrigin[f.origin] = [];
+    flowsByOrigin[f.origin].push(f);
+    if (!flowsByDest[f.dest]) flowsByDest[f.dest] = [];
+    flowsByDest[f.dest].push(f);
+  });
+
+  // Name to ISO lookup
+  var nameToISO = {};
+  Object.keys(COUNTRY_COORDS).forEach(function(iso) {
+    nameToISO[COUNTRY_COORDS[iso].name.toLowerCase()] = iso;
+  });
+
+  // Reverse lookup from country key to ISO
+  var keyToISO = {
+    syria:'SYR', ukraine:'UKR', afghanistan:'AFG', venezuela:'VEN',
+    sudan:'SDN', myanmar:'MMR'
+  };
+
+  // ============== LAYERS ==============
+  var dotsLayer = new GraphicsLayer({ title: 'Country Dots', elevationInfo: { mode: 'absolute-height' } });
+  var arcsLayer = new GraphicsLayer({ title: 'Migration Arcs', elevationInfo: { mode: 'absolute-height' } });
+  var particlesLayer = new GraphicsLayer({ title: 'Flow Particles', elevationInfo: { mode: 'absolute-height' } });
+
+  // ============== MAP & VIEW ==============
+  var map = new Map({
+    basemap: 'dark-gray-vector',
+    ground: 'world-elevation',
+    layers: [arcsLayer, particlesLayer, dotsLayer]
+  });
+
+  var view = new SceneView({
+    container: 'viewDiv',
+    map: map,
+    camera: {
+      position: { longitude: 30, latitude: 20, z: 25000000 },
+      heading: 0,
+      tilt: 0
+    },
+    environment: {
+      background: { type: 'color', color: [0, 0, 0, 1] },
+      starsEnabled: true,
+      atmosphereEnabled: true,
+      atmosphere: { quality: 'high' },
+      lighting: {
+        type: 'virtual'
+      }
+    },
+    qualityProfile: 'high',
+    ui: { components: [] },
+    popup: { autoOpenEnabled: false },
+    navigation: {
+      mouseWheelZoomEnabled: true,
+      browserTouchPanEnabled: true
+    },
+    constraints: {
+      altitude: { min: 5000000, max: 60000000 }
+    }
+  });
+
+  // ============== UTILITY FUNCTIONS ==============
+  function formatNumber(n) {
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(0) + 'K';
+    return n.toString();
+  }
+
+  function toRad(deg) { return deg * Math.PI / 180; }
+
+  function haversineDistance(lat1, lng1, lat2, lng2) {
+    var R = 6371;
+    var dLat = toRad(lat2 - lat1);
+    var dLng = toRad(lng2 - lng1);
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLng/2) * Math.sin(dLng/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function createArcPoints(startLat, startLng, endLat, endLng, numPoints, maxHeight) {
+    var points = [];
+    for (var i = 0; i <= numPoints; i++) {
+      var t = i / numPoints;
+      // Spherical interpolation (simplified great circle)
+      var lat = startLat + (endLat - startLat) * t;
+      // Handle date line crossing
+      var dLng = endLng - startLng;
+      if (Math.abs(dLng) > 180) {
+        dLng = dLng > 0 ? dLng - 360 : dLng + 360;
+      }
+      var lng = startLng + dLng * t;
+      // Normalize longitude
+      if (lng > 180) lng -= 360;
+      if (lng < -180) lng += 360;
+      // Parabolic elevation curve
+      var elevation = Math.sin(t * Math.PI) * maxHeight;
+      points.push([lng, lat, elevation]);
+    }
+    return points;
+  }
+
+  // ============== CREATE COUNTRY DOTS ==============
+  function createCountryDots() {
+    var graphics = [];
+    // Determine which countries are origins vs destinations
+    var originISOs = {};
+    var destISOs = {};
+    FLOWS.forEach(function(f) {
+      originISOs[f.origin] = (originISOs[f.origin] || 0) + f.volume;
+      destISOs[f.dest] = (destISOs[f.dest] || 0) + f.volume;
+    });
+
+    // All countries involved in flows
+    var allISOs = {};
+    Object.keys(originISOs).forEach(function(k) { allISOs[k] = true; });
+    Object.keys(destISOs).forEach(function(k) { allISOs[k] = true; });
+
+    Object.keys(allISOs).forEach(function(iso) {
+      var c = COUNTRY_COORDS[iso];
+      if (!c) return;
+
+      var isOrigin = !!originISOs[iso];
+      var isDest = !!destISOs[iso];
+      var volume = (originISOs[iso] || 0) + (destISOs[iso] || 0);
+
+      // Size based on volume
+      var size = Math.max(6, Math.min(16, Math.sqrt(volume / 100000) * 2));
+
+      // Color: red for origin, cyan for destination, yellow for both
+      var color;
+      if (isOrigin && isDest) {
+        color = [255, 165, 0, 0.9]; // Orange for both
+      } else if (isOrigin) {
+        color = [255, 68, 68, 0.9]; // Red
+      } else {
+        color = [0, 229, 255, 0.9]; // Cyan
+      }
+
+      var dotGraphic = new Graphic({
+        geometry: new Point({
+          longitude: c.lng,
+          latitude: c.lat,
+          z: 5000
+        }),
+        symbol: new SimpleMarkerSymbol({
+          style: 'circle',
+          color: color,
+          size: size + 'px',
+          outline: {
+            color: isOrigin ? [255, 68, 68, 0.4] : [0, 229, 255, 0.4],
+            width: 1.5
+          }
+        }),
+        attributes: {
+          iso: iso,
+          name: c.name,
+          isOrigin: isOrigin,
+          isDest: isDest,
+          volume: volume,
+          outflow: originISOs[iso] || 0,
+          inflow: destISOs[iso] || 0
+        }
+      });
+
+      graphics.push(dotGraphic);
+    });
+
+    dotsLayer.addMany(graphics);
+  }
+
+  // ============== CREATE MIGRATION ARCS ==============
+  function createMigrationArcs() {
+    var graphics = [];
+    var maxVolume = 0;
+    FLOWS.forEach(function(f) { if (f.volume > maxVolume) maxVolume = f.volume; });
+
+    FLOWS.forEach(function(flow) {
+      var origin = COUNTRY_COORDS[flow.origin];
+      var dest = COUNTRY_COORDS[flow.dest];
+      if (!origin || !dest) return;
+
+      var dist = haversineDistance(origin.lat, origin.lng, dest.lat, dest.lng);
+      // Height proportional to distance, capped
+      var maxHeight = Math.min(dist * 150, 2000000);
+      maxHeight = Math.max(maxHeight, 200000);
+
+      var numPoints = 40;
+      var arcPoints = createArcPoints(origin.lat, origin.lng, dest.lat, dest.lng, numPoints, maxHeight);
+
+      // Line width based on volume
+      var widthFactor = Math.max(1, Math.min(4, (flow.volume / maxVolume) * 4));
+
+      // Color gradient: red at origin fading to cyan at destination
+      // Use a blended color for the overall line
+      var volRatio = flow.volume / maxVolume;
+      var lineColor = [
+        Math.round(255 * (1 - volRatio * 0.3)),
+        Math.round(68 + (229 - 68) * 0.5),
+        Math.round(68 + (255 - 68) * 0.6),
+        Math.max(0.3, Math.min(0.85, volRatio))
+      ];
+
+      var arcGraphic = new Graphic({
+        geometry: new Polyline({
+          paths: [arcPoints],
+          hasZ: true,
+          spatialReference: SpatialReference.WGS84
+        }),
+        symbol: new SimpleLineSymbol({
+          color: lineColor,
+          width: widthFactor,
+          style: 'solid',
+          cap: 'round',
+          join: 'round'
+        }),
+        attributes: {
+          originISO: flow.origin,
+          destISO: flow.dest,
+          originName: origin.name,
+          destName: dest.name,
+          volume: flow.volume,
+          label: flow.label
+        }
+      });
+
+      graphics.push(arcGraphic);
+    });
+
+    arcsLayer.addMany(graphics);
+  }
+
+  // Also create colored arc segments for gradient effect
+  function createGradientArcs() {
+    var graphics = [];
+    var maxVolume = 0;
+    FLOWS.forEach(function(f) { if (f.volume > maxVolume) maxVolume = f.volume; });
+
+    FLOWS.forEach(function(flow) {
+      var origin = COUNTRY_COORDS[flow.origin];
+      var dest = COUNTRY_COORDS[flow.dest];
+      if (!origin || !dest) return;
+
+      var dist = haversineDistance(origin.lat, origin.lng, dest.lat, dest.lng);
+      var maxHeight = Math.min(dist * 150, 2000000);
+      maxHeight = Math.max(maxHeight, 200000);
+
+      var numSegments = 20;
+      var allPoints = createArcPoints(origin.lat, origin.lng, dest.lat, dest.lng, numSegments, maxHeight);
+
+      var volRatio = flow.volume / maxVolume;
+      var widthFactor = Math.max(0.8, Math.min(3.5, volRatio * 3.5));
+
+      // Create individual segments with color gradient
+      for (var s = 0; s < allPoints.length - 1; s++) {
+        var t = s / (allPoints.length - 1);
+        // Interpolate from red to cyan
+        var r = Math.round(255 * (1 - t) + 0 * t);
+        var g = Math.round(50 * (1 - t) + 210 * t);
+        var b = Math.round(50 * (1 - t) + 255 * t);
+        var alpha = Math.max(0.15, Math.min(0.55, volRatio * 0.55));
+        // Fade edges
+        var edgeFade = Math.sin(t * Math.PI);
+        alpha *= (0.3 + 0.7 * edgeFade);
+
+        var segGraphic = new Graphic({
+          geometry: new Polyline({
+            paths: [[allPoints[s], allPoints[s + 1]]],
+            hasZ: true,
+            spatialReference: SpatialReference.WGS84
+          }),
+          symbol: new SimpleLineSymbol({
+            color: [r, g, b, alpha],
+            width: widthFactor,
+            style: 'solid',
+            cap: 'round'
+          }),
+          attributes: {
+            originISO: flow.origin,
+            destISO: flow.dest,
+            originName: origin.name,
+            destName: dest.name,
+            volume: flow.volume,
+            label: flow.label,
+            segment: true
+          }
+        });
+        graphics.push(segGraphic);
+      }
+    });
+
+    arcsLayer.addMany(graphics);
+  }
+
+  // ============== FLOW PARTICLE SYSTEM ==============
+  // Pre-compute dense paths for each flow, then animate particles along them
+  var flowPaths = []; // Array of { points: [[lng,lat,z],...], origin, dest, volume, particleCount }
+  var particles = [];  // Array of { graphic, pathIndex, offset, speed }
+  var PARTICLES_PER_FLOW_BASE = 3;
+  var PARTICLE_SPEED_BASE = 0.003;
+
+  function buildFlowPaths() {
+    flowPaths = [];
+    var maxVolume = 0;
+    FLOWS.forEach(function(f) { if (f.volume > maxVolume) maxVolume = f.volume; });
+
+    FLOWS.forEach(function(flow, idx) {
+      var origin = COUNTRY_COORDS[flow.origin];
+      var dest = COUNTRY_COORDS[flow.dest];
+      if (!origin || !dest) return;
+
+      var dist = haversineDistance(origin.lat, origin.lng, dest.lat, dest.lng);
+      var maxHeight = Math.min(dist * 150, 2000000);
+      maxHeight = Math.max(maxHeight, 200000);
+
+      // Dense path for smooth particle movement (80 points)
+      var pts = createArcPoints(origin.lat, origin.lng, dest.lat, dest.lng, 80, maxHeight);
+
+      // More particles for larger flows
+      var volRatio = flow.volume / maxVolume;
+      var pCount = Math.max(2, Math.round(PARTICLES_PER_FLOW_BASE + volRatio * 5));
+
+      flowPaths.push({
+        points: pts,
+        originISO: flow.origin,
+        destISO: flow.dest,
+        volume: flow.volume,
+        volRatio: volRatio,
+        particleCount: pCount
+      });
+    });
+  }
+
+  function createFlowParticles() {
+    particles = [];
+    particlesLayer.removeAll();
+
+    flowPaths.forEach(function(fp, pathIdx) {
+      for (var p = 0; p < fp.particleCount; p++) {
+        // Stagger particles evenly along path + slight randomness
+        var offset = (p / fp.particleCount) + (Math.random() * 0.05);
+        if (offset > 1) offset -= 1;
+
+        // Speed varies slightly per particle, faster for shorter flows
+        var speed = PARTICLE_SPEED_BASE * (0.8 + Math.random() * 0.4);
+
+        // Particle size based on flow volume
+        var size = 3 + fp.volRatio * 5;
+
+        // Color interpolated by initial position (red at start, cyan at end)
+        var t = offset;
+        var r = Math.round(255 * (1 - t) + 30 * t);
+        var g = Math.round(80 * (1 - t) + 230 * t);
+        var b = Math.round(80 * (1 - t) + 255 * t);
+
+        var pt = fp.points[0];
+        var graphic = new Graphic({
+          geometry: new Point({
+            longitude: pt[0],
+            latitude: pt[1],
+            z: pt[2] || 10000
+          }),
+          symbol: new SimpleMarkerSymbol({
+            style: 'circle',
+            color: [r, g, b, 0.95],
+            size: size + 'px',
+            outline: { color: [255, 255, 255, 0.7], width: 0.8 }
+          }),
+          attributes: {
+            pathIndex: pathIdx,
+            originISO: fp.originISO,
+            destISO: fp.destISO,
+            particleIndex: p
+          }
+        });
+
+        particles.push({
+          graphic: graphic,
+          pathIndex: pathIdx,
+          offset: offset,
+          speed: speed,
+          size: size,
+          volRatio: fp.volRatio
+        });
+
+        particlesLayer.add(graphic);
+      }
+    });
+  }
+
+  // Main animation loop for flow particles
+  var flowAnimRunning = true;
+
+  function animateFlowParticles() {
+    if (!flowAnimRunning) {
+      requestAnimationFrame(animateFlowParticles);
+      return;
+    }
+
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      var fp = flowPaths[p.pathIndex];
+      if (!fp) continue;
+
+      // Advance offset
+      p.offset += p.speed;
+      if (p.offset >= 1) p.offset -= 1;
+
+      // Get position along path
+      var totalPts = fp.points.length;
+      var exactIdx = p.offset * (totalPts - 1);
+      var idx0 = Math.floor(exactIdx);
+      var idx1 = Math.min(idx0 + 1, totalPts - 1);
+      var frac = exactIdx - idx0;
+
+      var pt0 = fp.points[idx0];
+      var pt1 = fp.points[idx1];
+
+      var lng = pt0[0] + (pt1[0] - pt0[0]) * frac;
+      var lat = pt0[1] + (pt1[1] - pt0[1]) * frac;
+      var z = pt0[2] + (pt1[2] - pt0[2]) * frac;
+
+      // Color gradient along path (red -> white at peak -> cyan)
+      var t = p.offset;
+      var r, g, b;
+      if (t < 0.5) {
+        // Red -> bright white at midpoint
+        var t2 = t * 2;
+        r = Math.round(255);
+        g = Math.round(80 + 175 * t2);
+        b = Math.round(80 + 175 * t2);
+      } else {
+        // White -> cyan
+        var t2 = (t - 0.5) * 2;
+        r = Math.round(255 - 225 * t2);
+        g = Math.round(255 - 25 * t2);
+        b = Math.round(255);
+      }
+
+      // Pulse: brighter at peak elevation
+      var elevFactor = Math.sin(t * Math.PI);
+      var alpha = 0.6 + 0.4 * elevFactor;
+      var sizeNow = p.size * (0.7 + 0.6 * elevFactor);
+
+      // Update graphic geometry and symbol
+      p.graphic.geometry = new Point({
+        longitude: lng,
+        latitude: lat,
+        z: z + 5000  // Slightly above arc line
+      });
+
+      p.graphic.symbol = new SimpleMarkerSymbol({
+        style: 'circle',
+        color: [r, g, b, alpha],
+        size: sizeNow + 'px',
+        outline: { color: [255, 255, 255, alpha * 0.5], width: 0.5 }
+      });
+    }
+
+    requestAnimationFrame(animateFlowParticles);
+  }
+
+  // Filter particles by origin country
+  function filterParticles(originISO) {
+    particles.forEach(function(p) {
+      var fp = flowPaths[p.pathIndex];
+      if (!fp) return;
+      if (fp.originISO === originISO) {
+        // Make relevant particles bigger and brighter
+        p.speed = PARTICLE_SPEED_BASE * 1.5 * (0.8 + Math.random() * 0.4);
+      } else {
+        // Hide irrelevant particles
+        p.graphic.symbol = new SimpleMarkerSymbol({
+          style: 'circle',
+          color: [0, 0, 0, 0],
+          size: '0px',
+          outline: { color: [0, 0, 0, 0], width: 0 }
+        });
+        p.speed = 0; // Stop movement
+      }
+    });
+  }
+
+  function showAllParticles() {
+    particles.forEach(function(p) {
+      p.speed = PARTICLE_SPEED_BASE * (0.8 + Math.random() * 0.4);
+    });
+  }
+
+  // ============== INTERACTIVITY ==============
+  var currentFilter = 'all';
+  var isAutoRotating = true;
+  var autoRotateHandle = null;
+
+  // Tooltip handling
+  var tooltipEl = document.getElementById('tooltip');
+
+  view.on('pointer-move', function(evt) {
+    view.hitTest(evt).then(function(response) {
+      var result = response.results.find(function(r) {
+        return r.graphic && r.graphic.layer === dotsLayer;
+      });
+      if (result) {
+        var attr = result.graphic.attributes;
+        tooltipEl.querySelector('.tt-name').textContent = attr.name;
+        tooltipEl.querySelector('.tt-type').textContent =
+          attr.isOrigin ? 'OUTFLOW CRISIS' : 'ASYLUM DESTINATION';
+        var flowText = '';
+        if (attr.outflow > 0) flowText += 'OUT: ' + formatNumber(attr.outflow);
+        if (attr.inflow > 0) flowText += (flowText ? ' | ' : '') + 'IN: ' + formatNumber(attr.inflow);
+        tooltipEl.querySelector('.tt-flow').textContent = flowText;
+        tooltipEl.style.left = (evt.x + 15) + 'px';
+        tooltipEl.style.top = (evt.y - 10) + 'px';
+        tooltipEl.classList.add('visible');
+        document.body.style.cursor = 'pointer';
+      } else {
+        tooltipEl.classList.remove('visible');
+        document.body.style.cursor = 'default';
+      }
+    });
+  });
+
+  // Click handling
+  view.on('click', function(evt) {
+    view.hitTest(evt).then(function(response) {
+      var result = response.results.find(function(r) {
+        return r.graphic && r.graphic.layer === dotsLayer;
+      });
+      if (result) {
+        var iso = result.graphic.attributes.iso;
+        var countryKey = null;
+        Object.keys(keyToISO).forEach(function(k) {
+          if (keyToISO[k] === iso) countryKey = k;
+        });
+        if (countryKey) {
+          filterCountry(countryKey);
+        } else {
+          // For destination countries, just zoom to them
+          var c = COUNTRY_COORDS[iso];
+          if (c) {
+            view.goTo({
+              position: { longitude: c.lng, latitude: c.lat - 15, z: 12000000 },
+              heading: 0, tilt: 10
+            }, { duration: 1500, easing: 'ease-in-out' });
+          }
+        }
+      }
+    });
+  });
+
+  // ============== FILTER LOGIC ==============
+  window.filterCountry = function(countryInput) {
+    var key = countryInput.toLowerCase();
+
+    if (key === 'all') {
+      currentFilter = 'all';
+      resetToGlobalView();
+      return;
+    }
+
+    var data = COUNTRY_DATA[key];
+    if (!data) return;
+
+    currentFilter = key;
+    var iso = data.iso;
+    var c = COUNTRY_COORDS[iso];
+    if (!c) return;
+
+    // Stop auto-rotation
+    isAutoRotating = false;
+
+    // Zoom to country
+    view.goTo({
+      position: { longitude: c.lng, latitude: c.lat - 20, z: 12000000 },
+      heading: 0,
+      tilt: 15
+    }, { duration: 1500, easing: 'ease-in-out' });
+
+    // Update panel
+    updatePanelForCountry(key, data, iso);
+
+    // Filter arcs, dots, and particles
+    filterArcsAndDots(iso);
+    filterParticles(iso);
+
+    // Update search input
+    document.getElementById('countrySearch').value = data.name;
+  };
+
+  function resetToGlobalView() {
+    currentFilter = 'all';
+    isAutoRotating = true;
+
+    view.goTo({
+      position: { longitude: 30, latitude: 20, z: 25000000 },
+      heading: 0, tilt: 0
+    }, { duration: 1500, easing: 'ease-in-out' });
+
+    // Reset panel
+    document.getElementById('panel-country-header').style.display = 'none';
+    document.getElementById('kpi-title').textContent = 'GLOBAL KPI';
+    document.getElementById('kpi-outflow').textContent = '7.6M';
+    document.getElementById('kpi-outflow-label').textContent = 'OUTFLOW';
+    document.getElementById('kpi-inflow').textContent = '5.2M';
+    document.getElementById('kpi-inflow-label').textContent = 'INFLOW';
+    document.getElementById('inflow-title').textContent = 'INFLOW (IMMIGRATION)';
+    document.getElementById('panel-crisis-info').style.display = 'none';
+    document.getElementById('panel-trend').style.display = 'none';
+
+    // Reset charts to default
+    resetOutflowChart();
+    resetInflowChart();
+
+    // Reset search
+    document.getElementById('countrySearch').value = 'ALL REGIONS';
+
+    // Show all arcs and dots
+    showAllArcsAndDots();
+  }
+
+  function updatePanelForCountry(key, data, iso) {
+    // Show country header
+    document.getElementById('panel-country-header').style.display = 'block';
+    document.getElementById('panel-country-name').textContent = data.name;
+    document.getElementById('panel-country-status').textContent = 'OUTFLOW CRISIS';
+    document.getElementById('panel-country-status').style.background = '#ff3333';
+    document.getElementById('panel-country-status').style.color = '#fff';
+
+    // Update KPIs
+    document.getElementById('kpi-title').textContent = data.name + ' KPI';
+    document.getElementById('kpi-outflow').textContent = data.total;
+    document.getElementById('kpi-outflow-label').textContent = 'OUTFLOW';
+    document.getElementById('kpi-inflow').textContent = data.internal;
+    document.getElementById('kpi-inflow-label').textContent = 'INTERNAL';
+
+    // Show crisis info
+    document.getElementById('panel-crisis-info').style.display = 'block';
+    document.getElementById('panel-crisis-text').textContent = data.event;
+
+    // Show trend chart
+    document.getElementById('panel-trend').style.display = 'block';
+    var trendContainer = document.getElementById('panel-trend-chart');
+    var years = ['15','16','17','18','19','20','21','22','23','24'];
+    var maxTrend = Math.max.apply(null, data.trend);
+    var trendHTML = '';
+    data.trend.forEach(function(val, i) {
+      var h = maxTrend > 0 ? (val / maxTrend * 40) : 0;
+      trendHTML += '<div style="flex:1;display:flex;flex-direction:column;align-items:center">';
+      trendHTML += '<div class="trend-mini-bar" style="height:' + Math.max(2, h) + 'px"></div>';
+      trendHTML += '<div class="trend-mini-label">' + years[i] + '</div>';
+      trendHTML += '</div>';
+    });
+    trendContainer.innerHTML = trendHTML;
+
+    // Update outflow chart for this country's destinations
+    var outflowChart = document.getElementById('outflowChart');
+    var outHTML = '';
+    data.destinations.forEach(function(d, i) {
+      var parts = d.split(' ');
+      var name = parts.slice(0, -1).join(' ').toUpperCase();
+      var val = parts[parts.length - 1];
+      outHTML += '<div class="bar-row outflow-row">';
+      outHTML += '<div class="bar-rank">0' + (i + 1) + '</div>';
+      outHTML += '<div class="bar-label">' + name + '</div>';
+      outHTML += '<div class="bar-track"><div class="bar-fill outflow" style="width:' + (95 - i * 18) + '%"></div></div>';
+      outHTML += '<div class="bar-value">' + val + '</div>';
+      outHTML += '</div>';
+    });
+    outflowChart.innerHTML = outHTML;
+
+    // Update inflow title
+    document.getElementById('inflow-title').textContent = 'DESTINATIONS';
+
+    // Inflow chart shows same destinations with cyan bars
+    var inflowChart = document.getElementById('inflowChart');
+    var inHTML = '';
+    data.destinations.forEach(function(d, i) {
+      var parts = d.split(' ');
+      var name = parts.slice(0, -1).join(' ').toUpperCase();
+      var val = parts[parts.length - 1];
+      inHTML += '<div class="bar-row inflow-row">';
+      inHTML += '<div class="bar-rank">0' + (i + 1) + '</div>';
+      inHTML += '<div class="bar-label">' + name + '</div>';
+      inHTML += '<div class="bar-track"><div class="bar-fill inflow" style="width:' + (95 - i * 18) + '%"></div></div>';
+      inHTML += '<div class="bar-value">' + val + '</div>';
+      inHTML += '</div>';
+    });
+    inflowChart.innerHTML = inHTML;
+  }
+
+  function resetOutflowChart() {
+    var data = [
+      {name:'SYRIA', val:'6.8M', pct:95, key:'syria'},
+      {name:'UKRAINE', val:'6.3M', pct:88, key:'ukraine'},
+      {name:'AFGHAN', val:'5.7M', pct:79, key:'afghanistan'},
+      {name:'VENEZUELA', val:'5.0M', pct:69, key:'venezuela'},
+      {name:'SUDAN', val:'2.8M', pct:39, key:'sudan'}
+    ];
+    var html = '';
+    data.forEach(function(d, i) {
+      html += '<div class="bar-row outflow-row" onclick="filterCountry(\'' + d.key + '\')">';
+      html += '<div class="bar-rank">0' + (i+1) + '</div>';
+      html += '<div class="bar-label">' + d.name + '</div>';
+      html += '<div class="bar-track"><div class="bar-fill outflow" style="width:' + d.pct + '%"></div></div>';
+      html += '<div class="bar-value">' + d.val + '</div>';
+      html += '</div>';
+    });
+    document.getElementById('outflowChart').innerHTML = html;
+  }
+
+  function resetInflowChart() {
+    var data = [
+      {name:'TURKEY', val:'3.6M', pct:90},
+      {name:'GERMANY', val:'2.5M', pct:63},
+      {name:'POLAND', val:'1.9M', pct:48},
+      {name:'COLOMBIA', val:'1.8M', pct:45},
+      {name:'PAKISTAN', val:'1.6M', pct:40}
+    ];
+    var html = '';
+    data.forEach(function(d, i) {
+      html += '<div class="bar-row inflow-row">';
+      html += '<div class="bar-rank">0' + (i+1) + '</div>';
+      html += '<div class="bar-label">' + d.name + '</div>';
+      html += '<div class="bar-track"><div class="bar-fill inflow" style="width:' + d.pct + '%"></div></div>';
+      html += '<div class="bar-value">' + d.val + '</div>';
+      html += '</div>';
+    });
+    document.getElementById('inflowChart').innerHTML = html;
+  }
+
+  // ============== ARC / DOT FILTERING ==============
+  function filterArcsAndDots(originISO) {
+    // Get destination ISOs for this origin
+    var destISOs = {};
+    FLOWS.forEach(function(f) {
+      if (f.origin === originISO) destISOs[f.dest] = true;
+    });
+
+    // Filter arcs
+    arcsLayer.graphics.forEach(function(g) {
+      var attr = g.attributes;
+      if (!attr) return;
+      var isRelevant = attr.originISO === originISO;
+      var sym = g.symbol.clone();
+      var col = sym.color;
+      if (isRelevant) {
+        // Brighten relevant arcs
+        sym.color = new Color([col.r, col.g, col.b, Math.min(1, col.a * 2)]);
+        sym.width = Math.max(sym.width, 2);
+      } else {
+        // Dim irrelevant arcs
+        sym.color = new Color([col.r, col.g, col.b, 0.05]);
+      }
+      g.symbol = sym;
+    });
+
+    // Filter dots
+    dotsLayer.graphics.forEach(function(g) {
+      var attr = g.attributes;
+      if (!attr) return;
+      var iso = attr.iso;
+      var isOriginDot = iso === originISO;
+      var isDestDot = !!destISOs[iso];
+      var sym = g.symbol.clone();
+
+      if (isOriginDot) {
+        sym.color = new Color([255, 68, 68, 1]);
+        sym.size = 16;
+        sym.outline = { color: [255, 100, 100, 0.6], width: 3 };
+      } else if (isDestDot) {
+        sym.color = new Color([0, 229, 255, 1]);
+        sym.size = 12;
+        sym.outline = { color: [0, 229, 255, 0.5], width: 2 };
+      } else {
+        sym.color = new Color([100, 100, 100, 0.15]);
+        sym.size = 4;
+        sym.outline = { color: [100, 100, 100, 0.1], width: 0.5 };
+      }
+      g.symbol = sym;
+    });
+  }
+
+  function showAllArcsAndDots() {
+    // Rebuild arcs, dots, and particles with original styling
+    arcsLayer.removeAll();
+    dotsLayer.removeAll();
+    createGradientArcs();
+    createCountryDots();
+    showAllParticles();
+  }
+
+  // ============== SEARCH FUNCTIONALITY ==============
+  var countryList = [{iso: 'all', name: 'ALL REGIONS'}];
+  Object.keys(COUNTRY_DATA).forEach(function(key) {
+    countryList.push({iso: key, name: COUNTRY_DATA[key].name});
+  });
+
+  function setupSearch() {
+    var input = document.getElementById('countrySearch');
+    var dropdown = document.getElementById('searchDropdown');
+    input.value = 'ALL REGIONS';
+
+    input.addEventListener('focus', function() {
+      this.select();
+      showSearchResults('');
+    });
+
+    input.addEventListener('input', function() {
+      showSearchResults(this.value);
+    });
+
+    input.addEventListener('blur', function() {
+      setTimeout(function() { dropdown.classList.remove('active'); }, 200);
+    });
+
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        var first = dropdown.querySelector('.search-item');
+        if (first) first.click();
+      } else if (e.key === 'Escape') {
+        dropdown.classList.remove('active');
+        input.blur();
+      }
+    });
+  }
+
+  function showSearchResults(query) {
+    var dropdown = document.getElementById('searchDropdown');
+    var q = query.toLowerCase().trim();
+
+    var filtered = countryList.filter(function(c) {
+      return c.name.toLowerCase().indexOf(q) !== -1;
+    });
+
+    if (filtered.length === 0) {
+      dropdown.innerHTML = '<div class="search-item" style="opacity:0.5">No results</div>';
+    } else {
+      dropdown.innerHTML = filtered.map(function(c) {
+        return '<div class="search-item" data-iso="' + c.iso + '">' + c.name + '</div>';
+      }).join('');
+
+      dropdown.querySelectorAll('.search-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+          var iso = this.dataset.iso;
+          document.getElementById('countrySearch').value = this.textContent;
+          dropdown.classList.remove('active');
+          filterCountry(iso);
+        });
+      });
+    }
+    dropdown.classList.add('active');
+  }
+
+  // ============== AUTO ROTATION ==============
+  function startAutoRotation() {
+    var heading = 0;
+    function rotate() {
+      if (!isAutoRotating) {
+        autoRotateHandle = requestAnimationFrame(rotate);
+        return;
+      }
+      heading += 0.05;
+      if (heading >= 360) heading = 0;
+
+      var cam = view.camera.clone();
+      cam.position.longitude += 0.03;
+      if (cam.position.longitude > 180) cam.position.longitude -= 360;
+      view.camera = cam;
+
+      autoRotateHandle = requestAnimationFrame(rotate);
+    }
+    autoRotateHandle = requestAnimationFrame(rotate);
+  }
+
+  // Pause rotation on interaction
+  view.on('drag', function() {
+    isAutoRotating = false;
+    // Resume after 8 seconds of no interaction
+    clearTimeout(window._rotateResume);
+    window._rotateResume = setTimeout(function() {
+      if (currentFilter === 'all') isAutoRotating = true;
+    }, 8000);
+  });
+
+  // (Flow particle animation is in the FLOW PARTICLE SYSTEM section above)
+
+  // ============== INITIALIZE ==============
+  view.when(function() {
+    // Hide loading screen
+    var loadingEl = document.getElementById('loading');
+    loadingEl.classList.add('fade-out');
+    setTimeout(function() { loadingEl.style.display = 'none'; }, 1000);
+
+    // Create visualization
+    createGradientArcs();
+    createCountryDots();
+
+    // Build flow paths and create animated particles
+    buildFlowPaths();
+    createFlowParticles();
+
+    // Setup search
+    setupSearch();
+
+    // Start auto-rotation
+    startAutoRotation();
+
+    // Start flow particle animation
+    animateFlowParticles();
+
+    console.log('Migration Atlas initialized with ' + FLOWS.length + ' migration flows');
+  }, function(error) {
+    console.error('SceneView failed to load:', error);
+    document.getElementById('loading').querySelector('.loader-text').textContent =
+      'ERROR: Failed to initialize. Check console.';
+  });
+
+});
+</script>
+</body>
+</html>
