@@ -354,7 +354,7 @@
 <!-- Header -->
 <div id="header">
   <div><strong>MIGRATION<br>ATLAS</strong></div>
-  <div class="subtitle">Global refugee and displacement flows. Data: UNHCR 2020-2025</div>
+  <div class="subtitle">Global refugee and displacement flows. Data: UNHCR Global Trends 2024</div>
   <a href="https://www.linkedin.com/in/seoyeonjun/" target="_blank" style="font-size:9px;color:#00CCFF;opacity:0.7;margin-top:8px;display:inline-block">by Seoyeon Jun</a>
 </div>
 
@@ -368,15 +368,19 @@
     <div class="hud-divider"></div>
     <div class="hud-stat">
       <div class="hud-sub">DISPLACED</div>
-      <div class="hud-value">117.3M</div>
+      <div class="hud-value">123.2M</div>
     </div>
     <div class="hud-stat">
       <div class="hud-sub">REFUGEES</div>
-      <div class="hud-value">43.4M</div>
+      <div class="hud-value">42.7M</div>
+    </div>
+    <div class="hud-stat">
+      <div class="hud-sub">IDPs</div>
+      <div class="hud-value">73.5M</div>
     </div>
     <div class="hud-stat">
       <div class="hud-sub">ASYLUM</div>
-      <div class="hud-value">6.9M</div>
+      <div class="hud-value">8.4M</div>
     </div>
   </div>
 </div>
@@ -396,11 +400,11 @@
     <div class="data-title" id="kpi-title">GLOBAL KPI</div>
     <div class="kpi-grid">
       <div class="kpi-card">
-        <div class="kpi-num" id="kpi-outflow">7.6M</div>
+        <div class="kpi-num" id="kpi-outflow">14.3M</div>
         <div class="kpi-label" id="kpi-outflow-label">OUTFLOW</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-num cyan" id="kpi-inflow">5.2M</div>
+        <div class="kpi-num cyan" id="kpi-inflow">3.8M</div>
         <div class="kpi-label" id="kpi-inflow-label">INFLOW</div>
       </div>
     </div>
@@ -431,35 +435,35 @@
   <div class="data-section">
     <div class="data-title">OUTFLOW (EMIGRATION)</div>
     <div class="bar-chart" id="outflowChart">
-      <div class="bar-row outflow-row" onclick="filterCountry('syria')">
+      <div class="bar-row outflow-row" onclick="filterCountry('sudan')">
         <div class="bar-rank">01</div>
+        <div class="bar-label">SUDAN</div>
+        <div class="bar-track"><div class="bar-fill outflow" style="width:100%"></div></div>
+        <div class="bar-value">14.3M</div>
+      </div>
+      <div class="bar-row outflow-row" onclick="filterCountry('syria')">
+        <div class="bar-rank">02</div>
         <div class="bar-label">SYRIA</div>
-        <div class="bar-track"><div class="bar-fill outflow" style="width:95%"></div></div>
-        <div class="bar-value">6.8M</div>
+        <div class="bar-track"><div class="bar-fill outflow" style="width:94%"></div></div>
+        <div class="bar-value">13.5M</div>
       </div>
       <div class="bar-row outflow-row" onclick="filterCountry('ukraine')">
-        <div class="bar-rank">02</div>
+        <div class="bar-rank">03</div>
         <div class="bar-label">UKRAINE</div>
-        <div class="bar-track"><div class="bar-fill outflow" style="width:88%"></div></div>
-        <div class="bar-value">6.3M</div>
+        <div class="bar-track"><div class="bar-fill outflow" style="width:70%"></div></div>
+        <div class="bar-value">10.0M</div>
       </div>
       <div class="bar-row outflow-row" onclick="filterCountry('afghanistan')">
-        <div class="bar-rank">03</div>
-        <div class="bar-label">AFGHAN</div>
-        <div class="bar-track"><div class="bar-fill outflow" style="width:79%"></div></div>
-        <div class="bar-value">5.7M</div>
-      </div>
-      <div class="bar-row outflow-row" onclick="filterCountry('venezuela')">
         <div class="bar-rank">04</div>
-        <div class="bar-label">VENEZUELA</div>
-        <div class="bar-track"><div class="bar-fill outflow" style="width:69%"></div></div>
-        <div class="bar-value">5.0M</div>
+        <div class="bar-label">AFGHAN</div>
+        <div class="bar-track"><div class="bar-fill outflow" style="width:62%"></div></div>
+        <div class="bar-value">8.9M</div>
       </div>
-      <div class="bar-row outflow-row" onclick="filterCountry('sudan')">
+      <div class="bar-row outflow-row" onclick="filterCountry('drcongo')">
         <div class="bar-rank">05</div>
-        <div class="bar-label">SUDAN</div>
-        <div class="bar-track"><div class="bar-fill outflow" style="width:39%"></div></div>
-        <div class="bar-value">2.8M</div>
+        <div class="bar-label">DR CONGO</div>
+        <div class="bar-track"><div class="bar-fill outflow" style="width:51%"></div></div>
+        <div class="bar-value">7.3M</div>
       </div>
     </div>
   </div>
@@ -470,40 +474,40 @@
     <div class="bar-chart" id="inflowChart">
       <div class="bar-row inflow-row">
         <div class="bar-rank">01</div>
-        <div class="bar-label">TURKEY</div>
-        <div class="bar-track"><div class="bar-fill inflow" style="width:90%"></div></div>
-        <div class="bar-value">3.6M</div>
+        <div class="bar-label">IRAN</div>
+        <div class="bar-track"><div class="bar-fill inflow" style="width:100%"></div></div>
+        <div class="bar-value">3.8M</div>
       </div>
       <div class="bar-row inflow-row">
         <div class="bar-rank">02</div>
-        <div class="bar-label">GERMANY</div>
-        <div class="bar-track"><div class="bar-fill inflow" style="width:63%"></div></div>
-        <div class="bar-value">2.5M</div>
+        <div class="bar-label">TURKEY</div>
+        <div class="bar-track"><div class="bar-fill inflow" style="width:77%"></div></div>
+        <div class="bar-value">2.9M</div>
       </div>
       <div class="bar-row inflow-row">
         <div class="bar-rank">03</div>
-        <div class="bar-label">POLAND</div>
-        <div class="bar-track"><div class="bar-fill inflow" style="width:48%"></div></div>
-        <div class="bar-value">1.9M</div>
+        <div class="bar-label">GERMANY</div>
+        <div class="bar-track"><div class="bar-fill inflow" style="width:72%"></div></div>
+        <div class="bar-value">2.8M</div>
       </div>
       <div class="bar-row inflow-row">
         <div class="bar-rank">04</div>
         <div class="bar-label">COLOMBIA</div>
-        <div class="bar-track"><div class="bar-fill inflow" style="width:45%"></div></div>
+        <div class="bar-track"><div class="bar-fill inflow" style="width:47%"></div></div>
         <div class="bar-value">1.8M</div>
       </div>
       <div class="bar-row inflow-row">
         <div class="bar-rank">05</div>
-        <div class="bar-label">PAKISTAN</div>
-        <div class="bar-track"><div class="bar-fill inflow" style="width:40%"></div></div>
-        <div class="bar-value">1.6M</div>
+        <div class="bar-label">UGANDA</div>
+        <div class="bar-track"><div class="bar-fill inflow" style="width:46%"></div></div>
+        <div class="bar-value">1.8M</div>
       </div>
     </div>
   </div>
 
   <!-- Source -->
   <div style="font-size:7px;color:#00CCFF;opacity:0.4;text-align:right;margin-top:8px">
-    SOURCE: UNHCR MID-2024
+    SOURCE: UNHCR GLOBAL TRENDS 2024
   </div>
 </div>
 
@@ -613,86 +617,125 @@ require([
     BHR:{lat:26.0,lng:50.6,name:'Bahrain'},HKG:{lat:22.3,lng:114.2,name:'Hong Kong'}
   };
 
-  // Country crisis data
+  // Country crisis data (UNHCR Global Trends 2024 + Mid-Year Trends 2025)
   var COUNTRY_DATA = {
+    sudan: {
+      name: 'SUDAN', iso: 'SDN', type: 'outflow',
+      total: '14.3M', refugees: '3.2M', internal: '10.0M', year: '2023',
+      event: 'Armed conflict erupted in April 2023 between the Sudanese Armed Forces and the Rapid Support Forces. By end of 2024, 14.3 million people - a third of the nation\'s population - had been displaced, making it the world\'s largest displacement crisis.',
+      trend: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 3.2, 14.3],
+      destinations: ['Chad 1.2M', 'Egypt 0.8M', 'South Sudan 0.7M', 'Ethiopia 0.3M', 'CAR 0.1M']
+    },
     syria: {
       name: 'SYRIA', iso: 'SYR', type: 'outflow',
-      total: '6.8M', refugees: '5.4M', internal: '6.9M', year: '2011',
-      event: 'The Syrian Civil War began in 2011 as part of the Arab Spring protests. What started as peaceful demonstrations against President Assad escalated into a multi-sided armed conflict involving government forces, rebel groups, and ISIS. Over 500,000 people have died, and more than half the population has been displaced.',
-      trend: [4.2, 4.8, 5.5, 6.1, 6.3, 6.5, 6.6, 6.7, 6.8, 6.8],
-      destinations: ['Turkey 3.6M', 'Lebanon 0.8M', 'Jordan 0.7M', 'Germany 0.8M', 'Iraq 0.3M']
+      total: '13.5M', refugees: '6.1M', internal: '7.4M', year: '2011',
+      event: 'The Syrian Civil War displaced over half the population since 2011. By end of 2024, 6.1 million refugees remained abroad and 7.4 million were internally displaced. As of mid-2025, over 500,000 refugees have begun returning, the first significant decrease.',
+      trend: [4.2, 4.8, 5.5, 6.1, 6.3, 6.5, 6.6, 6.7, 6.4, 6.1],
+      destinations: ['Turkey 2.9M', 'Lebanon 0.8M', 'Germany 0.7M', 'Jordan 0.7M', 'Iraq 0.3M']
     },
     ukraine: {
       name: 'UKRAINE', iso: 'UKR', type: 'outflow',
-      total: '6.3M', refugees: '6.3M', internal: '3.7M', year: '2022',
-      event: 'Russia launched a full-scale invasion of Ukraine on February 24, 2022. This triggered the largest refugee crisis in Europe since World War II. Within months, millions fled to neighboring countries, with Poland receiving the largest number of refugees.',
+      total: '10.0M', refugees: '6.3M', internal: '3.7M', year: '2022',
+      event: 'Russia\'s full-scale invasion in February 2022 triggered Europe\'s largest refugee crisis since WWII. By end 2024, 12.7 million people needed humanitarian aid. In 2024, 740,000 more Ukrainians were newly displaced.',
       trend: [0, 0, 0, 0, 0, 0, 0, 0.1, 6.3, 6.3],
-      destinations: ['Poland 1.6M', 'Germany 1.1M', 'Czechia 0.5M', 'UK 0.2M', 'Spain 0.2M']
+      destinations: ['Poland 1.6M', 'Germany 1.2M', 'Czechia 0.5M', 'UK 0.2M', 'Spain 0.2M']
     },
     afghanistan: {
       name: 'AFGHANISTAN', iso: 'AFG', type: 'outflow',
-      total: '5.7M', refugees: '5.7M', internal: '3.2M', year: '1979',
-      event: 'Decades of conflict since the Soviet invasion in 1979, followed by civil war, Taliban rule, US intervention, and the Taliban takeover in August 2021 have created waves of displacement. The 2021 collapse led to a massive new exodus.',
+      total: '8.9M', refugees: '5.7M', internal: '3.2M', year: '1979',
+      event: 'Decades of conflict since 1979, the Taliban takeover in 2021, and ongoing instability continue to drive displacement. Iran hosts 3.8 million and Pakistan 1.6 million Afghan refugees. In 2024, significant returns began under pressure from host countries.',
       trend: [2.6, 2.5, 2.5, 2.6, 2.7, 2.8, 2.6, 2.6, 5.7, 5.7],
-      destinations: ['Iran 3.4M', 'Pakistan 1.7M', 'Germany 0.2M', 'Turkey 0.1M', 'Austria 0.04M']
+      destinations: ['Iran 3.8M', 'Pakistan 1.6M', 'Germany 0.3M', 'Turkey 0.1M', 'Austria 0.04M']
     },
     venezuela: {
       name: 'VENEZUELA', iso: 'VEN', type: 'outflow',
-      total: '5.0M', refugees: '5.0M', internal: '0.1M', year: '2014',
-      event: 'Economic collapse, hyperinflation, political crisis under the Maduro government, and severe shortages of food and medicine have driven millions to flee. Unlike war refugees, most Venezuelans are economic migrants seeking survival.',
-      trend: [0.1, 0.2, 0.5, 1.5, 3.4, 4.5, 4.6, 4.8, 5.0, 5.0],
+      total: '5.1M', refugees: '5.0M', internal: '0.1M', year: '2014',
+      event: 'Economic collapse, hyperinflation, and political crisis under the Maduro government continue to drive millions out. The Darien Gap crossing saw 302,000 migrants in 2024 (68% Venezuelan), though 2025 saw a 98% drop to just 2,831 crossings in Q1.',
+      trend: [0.1, 0.2, 0.5, 1.5, 3.4, 4.5, 4.6, 4.8, 5.0, 5.1],
       destinations: ['Colombia 1.8M', 'Peru 0.5M', 'USA 0.5M', 'Ecuador 0.4M', 'Chile 0.4M']
-    },
-    sudan: {
-      name: 'SUDAN', iso: 'SDN', type: 'outflow',
-      total: '2.8M', refugees: '1.1M', internal: '7.1M', year: '2023',
-      event: 'Armed conflict erupted in April 2023 between the Sudanese Armed Forces and the Rapid Support Forces paramilitary group. The fighting has caused massive displacement, with millions fleeing to Chad, Egypt, and South Sudan.',
-      trend: [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 1.1, 2.8],
-      destinations: ['Chad 0.6M', 'Egypt 0.5M', 'South Sudan 0.3M', 'Ethiopia 0.1M', 'CAR 0.05M']
     },
     myanmar: {
       name: 'MYANMAR', iso: 'MMR', type: 'outflow',
-      total: '1.3M', refugees: '1.3M', internal: '1.9M', year: '2017',
-      event: 'Military operations against the Rohingya population in 2017 led to mass exodus to Bangladesh. The 2021 military coup intensified displacement, with ongoing civil conflict creating new waves of refugees.',
-      trend: [0.5, 0.5, 0.5, 1.1, 1.1, 1.1, 1.2, 1.2, 1.3, 1.3],
-      destinations: ['Bangladesh 0.9M', 'Thailand 0.1M', 'Malaysia 0.1M', 'India 0.04M', 'China 0.02M']
+      total: '3.5M', refugees: '1.8M', internal: '1.7M', year: '2017',
+      event: 'The Rohingya crisis since 2017 and the 2021 military coup have displaced millions. The Rohingya are the largest known stateless population at nearly 1.8 million. Ongoing civil conflict continues to generate new displacement.',
+      trend: [0.5, 0.5, 0.5, 1.1, 1.1, 1.1, 1.2, 1.5, 1.7, 1.8],
+      destinations: ['Bangladesh 0.9M', 'Thailand 0.2M', 'Malaysia 0.2M', 'India 0.05M', 'China 0.02M']
+    },
+    drcongo: {
+      name: 'DR CONGO', iso: 'COD', type: 'outflow',
+      total: '7.3M', refugees: '1.1M', internal: '6.2M', year: '1996',
+      event: 'Decades of armed conflict in eastern DRC, involving multiple militia groups and neighboring countries, have created one of the world\'s most protracted displacement crises. The M23 offensive in 2023-2024 displaced millions more in North Kivu.',
+      trend: [2.0, 2.1, 4.5, 4.5, 5.0, 5.3, 5.6, 6.0, 6.9, 7.3],
+      destinations: ['Uganda 0.6M', 'Rwanda 0.1M', 'Burundi 0.1M', 'Tanzania 0.1M', 'Kenya 0.05M']
+    },
+    somalia: {
+      name: 'SOMALIA', iso: 'SOM', type: 'outflow',
+      total: '4.5M', refugees: '0.8M', internal: '3.7M', year: '1991',
+      event: 'Civil war, terrorism by Al-Shabaab, recurring droughts, and flooding have sustained one of the longest displacement crises in the world. Climate change is increasingly driving new displacement alongside conflict.',
+      trend: [1.1, 1.1, 1.1, 2.6, 2.6, 2.6, 2.9, 3.5, 3.9, 4.5],
+      destinations: ['Kenya 0.3M', 'Ethiopia 0.25M', 'Yemen 0.08M', 'Uganda 0.05M', 'Djibouti 0.03M']
     }
   };
 
-  // Migration flow data - major routes with volumes
+  // Migration flow data - major routes with volumes (UNHCR Global Trends 2024)
   var FLOWS = [
-    // Syria outflows
-    {origin:'SYR', dest:'TUR', volume:3600000, label:'3.6M'},
-    {origin:'SYR', dest:'DEU', volume:800000, label:'0.8M'},
+    // Sudan outflows (world's largest crisis - 14.3M displaced)
+    {origin:'SDN', dest:'TCD', volume:1200000, label:'1.2M'},
+    {origin:'SDN', dest:'EGY', volume:800000, label:'0.8M'},
+    {origin:'SDN', dest:'SSD', volume:700000, label:'0.7M'},
+    {origin:'SDN', dest:'ETH', volume:300000, label:'0.3M'},
+    {origin:'SDN', dest:'CAF', volume:100000, label:'0.1M'},
+    // Syria outflows (6.1M refugees + 7.4M IDPs)
+    {origin:'SYR', dest:'TUR', volume:2900000, label:'2.9M'},
     {origin:'SYR', dest:'LBN', volume:800000, label:'0.8M'},
+    {origin:'SYR', dest:'DEU', volume:725000, label:'0.7M'},
     {origin:'SYR', dest:'JOR', volume:700000, label:'0.7M'},
     {origin:'SYR', dest:'IRQ', volume:300000, label:'0.3M'},
-    // Ukraine outflows
+    {origin:'SYR', dest:'SWE', volume:120000, label:'0.1M'},
+    // Ukraine outflows (6.3M refugees)
     {origin:'UKR', dest:'POL', volume:1600000, label:'1.6M'},
-    {origin:'UKR', dest:'DEU', volume:1100000, label:'1.1M'},
+    {origin:'UKR', dest:'DEU', volume:1200000, label:'1.2M'},
     {origin:'UKR', dest:'CZE', volume:500000, label:'0.5M'},
     {origin:'UKR', dest:'GBR', volume:200000, label:'0.2M'},
     {origin:'UKR', dest:'ESP', volume:200000, label:'0.2M'},
-    // Afghanistan outflows
-    {origin:'AFG', dest:'IRN', volume:3400000, label:'3.4M'},
-    {origin:'AFG', dest:'PAK', volume:1700000, label:'1.7M'},
-    {origin:'AFG', dest:'DEU', volume:200000, label:'0.2M'},
-    {origin:'AFG', dest:'TUR', volume:100000, label:'0.1M'},
-    // Venezuela outflows
+    {origin:'UKR', dest:'ITA', volume:170000, label:'0.2M'},
+    // Afghanistan outflows (Iran is now #1 host globally with 3.8M)
+    {origin:'AFG', dest:'IRN', volume:3800000, label:'3.8M'},
+    {origin:'AFG', dest:'PAK', volume:1560000, label:'1.6M'},
+    {origin:'AFG', dest:'DEU', volume:279000, label:'0.3M'},
+    {origin:'AFG', dest:'TUR', volume:120000, label:'0.1M'},
+    {origin:'AFG', dest:'AUT', volume:40000, label:'0.04M'},
+    // Venezuela outflows (5M+ refugees)
     {origin:'VEN', dest:'COL', volume:1800000, label:'1.8M'},
     {origin:'VEN', dest:'PER', volume:500000, label:'0.5M'},
     {origin:'VEN', dest:'USA', volume:500000, label:'0.5M'},
     {origin:'VEN', dest:'ECU', volume:400000, label:'0.4M'},
     {origin:'VEN', dest:'CHL', volume:400000, label:'0.4M'},
-    // Sudan outflows
-    {origin:'SDN', dest:'TCD', volume:600000, label:'0.6M'},
-    {origin:'SDN', dest:'EGY', volume:500000, label:'0.5M'},
-    {origin:'SDN', dest:'SSD', volume:300000, label:'0.3M'},
-    {origin:'SDN', dest:'ETH', volume:100000, label:'0.1M'},
-    // Myanmar outflows
+    {origin:'VEN', dest:'BRA', volume:300000, label:'0.3M'},
+    // DR Congo outflows (7.3M total displaced)
+    {origin:'COD', dest:'UGA', volume:557000, label:'0.6M'},
+    {origin:'COD', dest:'RWA', volume:100000, label:'0.1M'},
+    {origin:'COD', dest:'BDI', volume:100000, label:'0.1M'},
+    {origin:'COD', dest:'TZA', volume:100000, label:'0.1M'},
+    {origin:'COD', dest:'KEN', volume:50000, label:'0.05M'},
+    // Myanmar outflows (1.8M Rohingya stateless)
     {origin:'MMR', dest:'BGD', volume:900000, label:'0.9M'},
-    {origin:'MMR', dest:'THA', volume:100000, label:'0.1M'},
-    {origin:'MMR', dest:'MYS', volume:100000, label:'0.1M'}
+    {origin:'MMR', dest:'THA', volume:200000, label:'0.2M'},
+    {origin:'MMR', dest:'MYS', volume:200000, label:'0.2M'},
+    {origin:'MMR', dest:'IND', volume:50000, label:'0.05M'},
+    // Somalia outflows (4.5M total displaced)
+    {origin:'SOM', dest:'KEN', volume:300000, label:'0.3M'},
+    {origin:'SOM', dest:'ETH', volume:250000, label:'0.25M'},
+    {origin:'SOM', dest:'YEM', volume:80000, label:'0.08M'},
+    {origin:'SOM', dest:'UGA', volume:50000, label:'0.05M'},
+    // South Sudan -> Uganda (major flow)
+    {origin:'SSD', dest:'UGA', volume:975000, label:'1.0M'},
+    {origin:'SSD', dest:'SDN', volume:400000, label:'0.4M'},
+    {origin:'SSD', dest:'ETH', volume:200000, label:'0.2M'},
+    // Eritrea -> Europe (Mediterranean route)
+    {origin:'ERI', dest:'DEU', volume:80000, label:'0.08M'},
+    {origin:'ERI', dest:'ETH', volume:200000, label:'0.2M'},
+    {origin:'ERI', dest:'SDN', volume:120000, label:'0.1M'}
   ];
 
   // Build lookup maps
@@ -713,8 +756,8 @@ require([
 
   // Reverse lookup from country key to ISO
   var keyToISO = {
-    syria:'SYR', ukraine:'UKR', afghanistan:'AFG', venezuela:'VEN',
-    sudan:'SDN', myanmar:'MMR'
+    sudan:'SDN', syria:'SYR', ukraine:'UKR', afghanistan:'AFG', venezuela:'VEN',
+    myanmar:'MMR', drcongo:'COD', somalia:'SOM'
   };
 
   // ============== LAYERS ==============
@@ -1298,9 +1341,9 @@ require([
     // Reset panel
     document.getElementById('panel-country-header').style.display = 'none';
     document.getElementById('kpi-title').textContent = 'GLOBAL KPI';
-    document.getElementById('kpi-outflow').textContent = '7.6M';
+    document.getElementById('kpi-outflow').textContent = '14.3M';
     document.getElementById('kpi-outflow-label').textContent = 'OUTFLOW';
-    document.getElementById('kpi-inflow').textContent = '5.2M';
+    document.getElementById('kpi-inflow').textContent = '3.8M';
     document.getElementById('kpi-inflow-label').textContent = 'INFLOW';
     document.getElementById('inflow-title').textContent = 'INFLOW (IMMIGRATION)';
     document.getElementById('panel-crisis-info').style.display = 'none';
