@@ -670,10 +670,24 @@ require([
     },
     somalia: {
       name: 'SOMALIA', iso: 'SOM', type: 'outflow',
-      total: '4.5M', refugees: '0.8M', internal: '3.7M', year: '1991',
+      total: '4.5M', refugees: '0.9M', internal: '3.7M', year: '1991',
       event: 'Civil war, terrorism by Al-Shabaab, recurring droughts, and flooding have sustained one of the longest displacement crises in the world. Climate change is increasingly driving new displacement alongside conflict.',
       trend: [1.1, 1.1, 1.1, 2.6, 2.6, 2.6, 2.9, 3.5, 3.9, 4.5],
       destinations: ['Kenya 0.3M', 'Ethiopia 0.25M', 'Yemen 0.08M', 'Uganda 0.05M', 'Djibouti 0.03M']
+    },
+    haiti: {
+      name: 'HAITI', iso: 'HTI', type: 'outflow',
+      total: '1.4M', refugees: '0.1M', internal: '1.4M', year: '2024',
+      event: 'Escalating gang violence in Port-au-Prince and political instability have created a rapidly growing displacement crisis. By September 2025, 1.4 million were internally displaced - a 10% increase in just two months. Armed gangs control much of the capital.',
+      trend: [0, 0, 0, 0, 0.1, 0.1, 0.2, 0.3, 0.7, 1.4],
+      destinations: ['USA 0.3M', 'DOM 0.1M', 'CHL 0.05M', 'BRA 0.04M', 'CAN 0.03M']
+    },
+    southsudan: {
+      name: 'SOUTH SUDAN', iso: 'SSD', type: 'outflow',
+      total: '4.4M', refugees: '2.4M', internal: '2.0M', year: '2013',
+      event: 'Civil war erupted in 2013 between forces loyal to President Kiir and Vice President Machar. Despite a 2018 peace deal, violence continues. South Sudan also absorbs refugees from neighboring Sudan, while 2.4 million South Sudanese remain refugees abroad.',
+      trend: [0.7, 1.4, 1.9, 2.2, 2.2, 2.2, 2.3, 2.3, 2.4, 2.4],
+      destinations: ['Uganda 1.0M', 'Sudan 0.4M', 'Ethiopia 0.4M', 'Kenya 0.1M', 'DR Congo 0.1M']
     }
   };
 
@@ -728,14 +742,23 @@ require([
     {origin:'SOM', dest:'ETH', volume:250000, label:'0.25M'},
     {origin:'SOM', dest:'YEM', volume:80000, label:'0.08M'},
     {origin:'SOM', dest:'UGA', volume:50000, label:'0.05M'},
-    // South Sudan -> Uganda (major flow)
-    {origin:'SSD', dest:'UGA', volume:975000, label:'1.0M'},
-    {origin:'SSD', dest:'SDN', volume:400000, label:'0.4M'},
-    {origin:'SSD', dest:'ETH', volume:200000, label:'0.2M'},
     // Eritrea -> Europe (Mediterranean route)
     {origin:'ERI', dest:'DEU', volume:80000, label:'0.08M'},
     {origin:'ERI', dest:'ETH', volume:200000, label:'0.2M'},
-    {origin:'ERI', dest:'SDN', volume:120000, label:'0.1M'}
+    {origin:'ERI', dest:'SDN', volume:120000, label:'0.1M'},
+    // Haiti outflows (new crisis - gang violence)
+    {origin:'HTI', dest:'USA', volume:300000, label:'0.3M'},
+    {origin:'HTI', dest:'DOM', volume:100000, label:'0.1M'},
+    {origin:'HTI', dest:'CHL', volume:50000, label:'0.05M'},
+    {origin:'HTI', dest:'BRA', volume:40000, label:'0.04M'},
+    // Horn of Africa to Yemen (busiest maritime route - 446K in 2024)
+    {origin:'SOM', dest:'YEM', volume:250000, label:'0.25M'},
+    {origin:'ETH', dest:'YEM', volume:196000, label:'0.2M'},
+    // South Sudan outflows (2.4M refugees abroad)
+    {origin:'SSD', dest:'UGA', volume:975000, label:'1.0M'},
+    {origin:'SSD', dest:'SDN', volume:400000, label:'0.4M'},
+    {origin:'SSD', dest:'ETH', volume:400000, label:'0.4M'},
+    {origin:'SSD', dest:'KEN', volume:100000, label:'0.1M'}
   ];
 
   // Build lookup maps
@@ -757,7 +780,7 @@ require([
   // Reverse lookup from country key to ISO
   var keyToISO = {
     sudan:'SDN', syria:'SYR', ukraine:'UKR', afghanistan:'AFG', venezuela:'VEN',
-    myanmar:'MMR', drcongo:'COD', somalia:'SOM'
+    myanmar:'MMR', drcongo:'COD', somalia:'SOM', haiti:'HTI', southsudan:'SSD'
   };
 
   // ============== LAYERS ==============

@@ -22,11 +22,11 @@ Migration Atlas visualizes the movement of **123.2 million** forcibly displaced 
 
 - **3D Interactive Globe** - ArcGIS SceneView with dark basemap, stars, and atmospheric effects
 - **Animated Flow Particles** - Moving dots travel along migration arcs from origin to destination, with color morphing (red to white to cyan) and size pulsing
-- **Gradient Migration Arcs** - 46+ routes with red-to-cyan color interpolation and elevation curves proportional to geographic distance
+- **Gradient Migration Arcs** - 50+ routes with red-to-cyan color interpolation and elevation curves proportional to geographic distance
 - **Country Dot Markers** - Red for outflow origins, cyan for asylum destinations, orange for countries that are both
 - **HUD-Style UI** - Futuristic heads-up display panels with Michroma font, corner brackets, scanlines, and blinking indicators
 - **Country Filter** - Click any country dot or use the search bar to zoom in and filter migration flows
-- **Crisis Profiles** - Detailed information for 8 major crises including trend charts and destination breakdowns
+- **Crisis Profiles** - Detailed information for 10 major crises including trend charts and destination breakdowns
 - **KPI Dashboard** - Real-time stats panel with outflow/inflow bar charts
 - **Auto-Rotation** - Globe slowly rotates, pausing on user interaction
 - **Responsive Design** - Adapts to mobile and tablet screens
@@ -42,7 +42,9 @@ Migration Atlas visualizes the movement of **123.2 million** forcibly displaced 
 | DR Congo | 7.3M | M23 offensive, eastern conflict |
 | Venezuela | 5.1M | Economic/political collapse |
 | Somalia | 4.5M | Conflict + climate |
+| South Sudan | 4.4M | Civil war since 2013 |
 | Myanmar | 3.5M | Rohingya + military coup |
+| Haiti | 1.4M | Gang violence (new 2024 crisis) |
 
 ## Top Refugee Hosting Countries
 
